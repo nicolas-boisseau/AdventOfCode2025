@@ -15,8 +15,10 @@ if __name__ == '__main__':
 
     part = 1
     expectedSampleResult = -1
+    expectedSampleResult2 = -1
 
     part_func = part1 if part == 1 else part2
+    expectedSampleResult = expectedSampleResult if part == 1 else expectedSampleResult2
     if part_func(read_input_lines("sample.txt")) == expectedSampleResult:
         print(f"Sample for part {part} OK")
 
@@ -25,3 +27,5 @@ if __name__ == '__main__':
 
         post_answer(2025, part, result)
         print(f"Part {part} result posted !")
+    else:
+        print(f"Sample for part {part} FAILED")

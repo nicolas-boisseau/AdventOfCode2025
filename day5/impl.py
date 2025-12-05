@@ -40,55 +40,32 @@ def part2(lines):
         has_overlap = False
         for r in final_ranges:
 
-            # cas 1 : nr englobe r
-            if nr[0] < r[0] and nr[1] > r[1]:
+            # cas 1 : overlap seulement à gauche
+            if nr[0] < r[0] and (nr[1] >= r[0] and nr[1] <= r[1]):
+                nr[1] = r[0]-1
                 has_overlap = True
-                print("case 1")
-                #print(f"nr: {nr}, r: {r}")
-                # nr should be split into 2 new ranges
-                if r[0]-1 >= nr[0]:
-                    nr1 = [nr[0], r[0]-1]
-                    fixed_nr.append(nr1)
-
-                if r[1] + 1 <= nr[1]:
-                    nr2 = [r[1]+1, nr[1]]
-                    fixed_nr.append(nr2)
-                break
-            # elif nr[0] <= r[0] and nr[1] > r[1]: # cas 1 bis
-            #     has_overlap = True
-            #     print("case 1 bis")
-            #     # nr should be split into 2 new ranges
-            #     nr1 = [nr[0], r[0] - 1]
-            #     nr2 = [r[1] + 1, nr[1]]
-            #     fixed_nr.append(nr1)
-            #     fixed_nr.append(nr2)
-            #     break
-
-            # cas 2 : r englobe nr : rien à faire
-            #
-            elif nr[0] <= r[0] and nr[1] >= r[1]:
-                has_overlap = True
-                print("case 2")
-                # rien à faire
-            #     has_overlap = True
-            #     # nr is removed
-            #     nr = None
-
-            # cas 3 : overlap à gauche
-            elif nr[0] <= r[1] and r[1] <= nr[1]:
-                print("case 3")
-                has_overlap = True
-                if r[1]+1 <= nr[1]:
-                    fixed_nr.append([r[1]+1, nr[1]])
+                fixed_nr.append(nr)
                 break
 
-            # cas 4 : overlap à droite
-            elif nr[0] <= r[0] and r[0] <= nr[1]:
-                print("case 4")
+            # cas 2 : overlap seulement à droite
+            elif nr[1] > r[1] and (nr[0] >= r[0] and nr[0] <= r[1]):
+                nr[0] = r[1]+1
                 has_overlap = True
-                if nr[0] <= r[0]-1:
-                    fixed_nr.append([nr[0], r[0]-1])
+                fixed_nr.append(nr)
                 break
+
+            # cas 3 : le new range est inclus dans un existant
+            elif nr[0] >= r[0] and nr[1] <= r[1]:
+                has_overlap = True
+                # nothing to do
+                break
+
+            # cas 4 : overlap total : il faut prendre les morceaux à droite et à gauche
+            elif nr[0] < r[0] and nr[1] > r[1]:
+                has_overlap = True
+                # split in two ranges
+                fixed_nr.append([nr[0], r[0]-1])
+                fixed_nr.append([r[1]-1, nr[1]])
 
         if not has_overlap:
             final_ranges.append(nr)

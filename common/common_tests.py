@@ -14,6 +14,15 @@ class CommonTests(unittest.TestCase):
 
         self.assertEqual(result[0], "123")
 
+    def test_capture_failure(self):
+        # arrange
+        input_pattern = r"blabla (\d+) blabla"
+        input_data = "this will not match"
+
+        # act / assert
+        with self.assertRaises(ValueError):
+            capture(input_pattern, input_data)
+
     def test_Capture_Three(self):
         # arrange
         input_pattern = r"(\d+),(\d+) -> (\d+),(\d+)"

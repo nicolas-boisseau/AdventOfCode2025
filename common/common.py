@@ -64,6 +64,8 @@ def post_answer(year, level, answer):
 
 def capture(input_pattern, input_data):
     m = re.compile(input_pattern).match(input_data)
+    if m is None:
+        raise ValueError("Pattern did not match")
     return m.groups()
 
 

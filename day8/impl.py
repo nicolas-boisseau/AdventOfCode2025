@@ -9,10 +9,10 @@ download_input_if_not_exists(2025)
 def is_in_any_circuit(circuits, n1, n2):
     for k,v in circuits.items():
         if n1 in v and n2 in v:
-            return k, None
+            return k, [n1,n2]
         elif n1 in v or n2 in v:
-            return k, n1 if n1 in v else n2
-    return None, None
+            return k, [n1] if n1 in v else [n2]
+    return None, []
 
 def part1(lines, max_connections=10):
     positions = []
@@ -22,34 +22,84 @@ def part1(lines, max_connections=10):
 
     circuits = defaultdict(list)
     already_connected = set()
-    for i in range(max_connections):
-        min_dist = 99999999999999
-        min_couple = (None,None)
-        for x,y,z in positions:
-            for x2,y2,z2 in positions:
-                if (x,y,z) != (x2,y2,z2) and ((x,y,z),(x2,y2,z2)) not in already_connected and ((x2,y2,z2),(x,y,z)) not in already_connected:
-                    dist = math.sqrt( (x2-x)**2 + (y2-y)**2 + (z2-z)**2 )
-                    if dist < min_dist:
-                        min_dist = dist
-                        min_couple = ( (x,y,z), (x2,y2,z2) )
 
-        circuit_id, node_already_in = is_in_any_circuit(circuits, min_couple[0], min_couple[1])
-        if circuit_id is None:
-            k = min_couple[0]
-            circuits[k].append(min_couple[0])
-            circuits[k].append(min_couple[1])
-        else:
-            if node_already_in == min_couple[0]:
-                circuits[circuit_id].append(min_couple[1])
-            else:
-                circuits[circuit_id].append(min_couple[0])
+    d = defaultdict(float)
+    for x, y, z in positions:
+        for x2, y2, z2 in positions:
+            if (x,y,z) != (x2,y2,z2):
+                if ((x,y,z), (x2,y2,z2)) not in d and ((x2,y2,z2),(x,y,z)) not in d:
+                    d[((x,y,z), (x2,y2,z2))] = math.sqrt( (x2-x)**2 + (y2-y)**2 + (z2-z)**2 )
+    positions.sort(key=lambda p: d[p])
 
-        already_connected.add(min_couple)
-        already_connected.add((min_couple[1], min_couple[0]))
+    # for k,v in d.items():
+    #     print(f"{k[0]} => {k[1]} : {v}")
 
-    for c in circuits:
-        print(len(c))
-    print(positions)
+    # sort d using its values
+    sorted_d = dict(sorted(d.items(), key=lambda item: item[1], reverse=True))
+
+    # for k,v in sorted_d.items():
+    #     if v == 0:
+    #         continue
+    #     print(f"{k[0]} => {k[1]} : {v}")
+
+    i = 0
+    already_connected = set()
+    for couple,_ in sorted_d.items():
+        if i > max_connections:
+            break
+
+        n1, n2 = couple
+
+        is_a_circuit = False
+        for c, v in circuits.items():
+            if n1 in v or n2 in v:
+                is_a_circuit = True
+                v.append(n1 if n1 not in v else n2)
+        if not is_a_circuit:
+            circuits[i].append(n1)
+            circuits[i].append(n2)
+
+        i+=1
+
+    print(circuits)
+
+    lengths = [len(v) for k,v in circuits.items()]
+    lengths.sort()
+
+    return lengths[-1] * lengths[-2] * lengths[-3]
+
+    #
+    #
+    # for i in range(max_connections):
+    #     min_dist = 99999999999999
+    #     min_couple = (None,None)
+    #     for x,y,z in positions:
+    #         for x2,y2,z2 in [p for p in positions if ((x,y,z), p) not in already_connected]:
+    #             if (x,y,z) != (x2,y2,z2) and ((x,y,z),(x2,y2,z2)) not in already_connected and ((x2,y2,z2),(x,y,z)) not in already_connected:
+    #                 dist = math.sqrt( (x2-x)**2 + (y2-y)**2 + (z2-z)**2 )
+    #                 if dist < min_dist:
+    #                     min_dist = dist
+    #                     min_couple = ( (x,y,z), (x2,y2,z2) )
+    #
+    #     circuit_id, node_already_in = is_in_any_circuit(circuits, min_couple[0], min_couple[1])
+    #     if circuit_id is None:
+    #         k = min_couple[0]
+    #         circuits[k].append(min_couple[0])
+    #         circuits[k].append(min_couple[1])
+    #     else:
+    #         if node_already_in == min_couple[0]:
+    #             circuits[circuit_id].append(min_couple[1])
+    #         else:
+    #             circuits[circuit_id].append(min_couple[0])
+    #
+    #     already_connected.add(min_couple)
+    #     already_connected.add((min_couple[1], min_couple[0]))
+    #     already_connected.add((min_couple[0], min_couple[1]))
+    #
+    # lengths = [len(v) for k,v in circuits.items()]
+    # lengths.sort()
+
+    #return lengths[-1] * lengths[-2] * lengths[-3]
     return 0
 
 
@@ -60,7 +110,7 @@ def part2(lines):
 if __name__ == '__main__':
 
     part = 1
-    expectedSampleResult = -1
+    expectedSampleResult = 40
     expectedSampleResult2 = -1
 
     part_func = part1 if part == 1 else part2

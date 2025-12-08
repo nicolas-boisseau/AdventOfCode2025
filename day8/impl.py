@@ -38,25 +38,26 @@ def part1(lines, max_connections=10, p2=False):
     connected = 0
     circuits = defaultdict(list)
     for couple,d in sorted_d.items():
-        if i >= max_connections:
-            break
+        if not p2:
+            if i >= max_connections:
+                break
 
         n1, n2 = couple
-        print(f"== Connecting {i} {n1} => {n2} (distance {d})")
+
+        #print(f"Processing connection {i} : {n1} => {n2} (distance {d})")
 
         n1_circuit_id = circuit_id_if_node_in(circuits, n1)
         n2_circuit_id = circuit_id_if_node_in(circuits, n2)
         if n1_circuit_id is not None and n2_circuit_id is not None:
-            if n1_circuit_id == n2_circuit_id:
-                print("Both nodes already in same circuit, nothing to do")
-                i+=1
-                continue
-            else:
-                print(f"Merging circuits {n1_circuit_id} and {n2_circuit_id}")
+            if n1_circuit_id != n2_circuit_id:
+                #print(f"Merging circuits {n1_circuit_id} and {n2_circuit_id}")
                 for other_n in circuits[n2_circuit_id]:
                     if other_n not in circuits[n1_circuit_id]:
                         circuits[n1_circuit_id].append(other_n)
                 del circuits[n2_circuit_id]
+            # else:
+            #     print("Both nodes already in same circuit, nothing to do")
+
         elif n1_circuit_id is not None:
             circuits[n1_circuit_id].append(n2)
         elif n2_circuit_id is not None:
@@ -65,6 +66,10 @@ def part1(lines, max_connections=10, p2=False):
             # new circuit
             circuits[i].append(n1)
             circuits[i].append(n2)
+
+        if p2 and any([len(v) == len(positions) for k,v in circuits.items()]):
+            print("All nodes connected !")
+            return n1[0] * n2[0]
 
         i+=1
 
@@ -81,7 +86,7 @@ def part1(lines, max_connections=10, p2=False):
     return lengths[-1] * lengths[-2] * lengths[-3]
 
 def part2(lines):
-    return part1(p2=True)
+    return part1(lines, p2=True)
 
 
 if __name__ == '__main__':

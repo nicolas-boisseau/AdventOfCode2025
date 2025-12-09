@@ -1,14 +1,16 @@
 import os.path
+from collections import defaultdict
 
 from common.common import download_input_if_not_exists, post_answer, capture, capture_all, read_input_lines
 
 download_input_if_not_exists(2025)
 
-def part1(lines):
+def part1_with_splits(lines):
     start = str.index(lines[0], 'S')
     beams = [(start, 0)]  # (x, y)
     splits = set()
     already_dones = set()
+    nb_p2 = 1
     while len(beams) > 0:
         b = beams.pop(0)
         if b in already_dones:
@@ -22,37 +24,35 @@ def part1(lines):
         elif lines[new_b_pos[1]][new_b_pos[0]] == '^':
             beams.append((new_b_pos[0] - 1, new_b_pos[1]))
             beams.append((new_b_pos[0] + 1, new_b_pos[1]))
+            nb_p2+=2
             splits.add(f"{new_b_pos[0]},{new_b_pos[1]}")
-    return len(splits)
+
+    print(nb_p2)
+    return len(splits), splits
+
+def part1(lines):
+    res, splits = part1_with_splits(lines)
+    return res
 
 def part2(lines):
+    _, splits = part1_with_splits(lines)
+
+    cur_nb_beams = 1
+    total = 1
     start = str.index(lines[0], 'S')
-    beams = [(start, 0, f"({start},0)")]  # (x, y)
-    already_dones = set()
-    paths = set()
-    while len(beams) > 0:
-        b = beams.pop(0)
-        if b in already_dones:
-            continue
-        already_dones.add(b)
-        new_b_pos = (b[0], b[1] + 1)
-        if new_b_pos[1] >= len(lines):
-            paths.add(b[2])
-            continue
-        if lines[new_b_pos[1]][new_b_pos[0]] == '.':
-            next_beam = (new_b_pos[0], new_b_pos[1], f"{b[2]}->{new_b_pos}")
-            beams.append(next_beam)
-        elif lines[new_b_pos[1]][new_b_pos[0]] == '^':
+    beams = defaultdict(list)
+    beams[0] = [start]
+    for y in range(len(lines)):
+        nb_splits_this_line = 0
+        for x in range(len(lines[y])):
+            if f"{x},{y}" in splits and x in beams[y]:
+                nb_splits_this_line += 1
+                beams[y+1].append(x-1)
+                beams[y+1].append(x+1)
 
-            if new_b_pos[0]-1  >= 0:
-                next_beam_left = (new_b_pos[0] - 1, new_b_pos[1], f"{b[2]}->{(new_b_pos[0]-1, new_b_pos[1])}")
-                beams.append(next_beam_left)
+        total += len(beams[y+1])
 
-            if new_b_pos[0]+1 < len(lines[0]):
-                next_beam_right = (new_b_pos[0] + 1, new_b_pos[1], f"{b[2]}->{(new_b_pos[0]+1, new_b_pos[1])}")
-                beams.append(next_beam_right)
-
-    return len(paths)
+    return total
 
 
 if __name__ == '__main__':

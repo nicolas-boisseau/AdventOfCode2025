@@ -18,6 +18,7 @@ class AdventOfCodeTests(unittest.TestCase):
     def test_part2_input(self):
         # 4767418746 is too high
         # 4741680450 is too high
+        # 4635268638 is not the right answer
         self.assertEqual(4, part2(read_input_lines("input.txt")))
 
 

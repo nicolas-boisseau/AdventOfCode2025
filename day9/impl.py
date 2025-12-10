@@ -63,12 +63,12 @@ def part2(lines):
     # for y in range(max_y + 2):
     #     for x in range(max_x + 2):
     #         if (x, y) in allpoints:
-    #             g[(x, y)] = "#"
-    #             # print("#", end="")
+    #             #g[(x, y)] = "#"
+    #             print("#", end="")
     #         else:
-    #             g[(x, y)] = "."
-    #             # print(".", end="")
-    #     # print("")
+    #             #g[(x, y)] = "."
+    #             print(".", end="")
+    #     print("")
 
     def is_inside(px, py):
         if (px, py) in allpoints:
@@ -78,26 +78,21 @@ def part2(lines):
         if not any([(xx, yy) for (xx, yy) in allpoints if yy == py]):
             return False
 
-        possible_intersections = [(xx, yy) for (xx, yy) in allpoints if yy == py]
+        possible_intersections = [(xx, yy) for (xx, yy) in allpoints if yy == py and xx < px]
+        if len(possible_intersections) == 0:
+            return False
+
         intersection = 0
         min_x = min([x for (x, y) in possible_intersections])
         # sort by x descending
-        possible_intersections = sorted(possible_intersections, key=lambda item: item[0], reverse=False)
         last_is_intersection = (px, py) in possible_intersections
         empty_in_a_row = 0
 
         while px >= min_x - 1:
-            if empty_in_a_row > 2 and (px, py) not in possible_intersections and len(possible_intersections) > 0:
-                next_intersection = possible_intersections[0]
-                px, py = next_intersection
-                possible_intersections = possible_intersections[1:]
-            else:
-                px, py = px - 1, py
+            px, py = px - 1, py
             current_is_intersection = (px, py) in possible_intersections
-            empty_in_a_row += 1 if current_is_intersection else 0
             if not last_is_intersection and current_is_intersection:
                 intersection += 1
-                empty_in_a_row = 0
             last_is_intersection = current_is_intersection
         return intersection % 2 == 1
 

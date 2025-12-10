@@ -5,6 +5,24 @@ from day10.Graph import Graph
 
 download_input_if_not_exists(2025)
 
+def read_patterns_and_buttons(lines):
+    patterns_by_id = []
+    buttons_by_id = []
+    joltages_by_id = []
+    for l in lines:
+        target_pattern = capture_all(r"[#.]+", l)
+        patterns_by_id.append(target_pattern[0])
+
+        available_buttons = capture_all(r"([0-9,]+)", l)
+        buttons = []
+        for b in available_buttons:
+            buttons.append([int(bb) for bb in b.split(',')])
+        buttons_by_id.append(buttons[:-1])
+        joltages_by_id.append(buttons[-1])
+
+    return patterns_by_id, buttons_by_id, joltages_by_id
+
+
 def get_all_possible_combinations(length):
     if length == 0:
         return [""]
@@ -17,7 +35,7 @@ def get_all_possible_combinations(length):
     return combinations
 
 def part1(lines):
-    patterns_by_id, buttons_by_id = read_patterns_and_buttons(lines)
+    patterns_by_id, buttons_by_id, _ = read_patterns_and_buttons(lines)
 
     # for i in range(len(patterns_by_id)):
     #     pattern = patterns_by_id[i]
@@ -48,20 +66,6 @@ def part1(lines):
     return res
 
 
-def read_patterns_and_buttons(lines):
-    patterns_by_id = []
-    buttons_by_id = []
-    for l in lines:
-        target_pattern = capture_all(r"[#.]+", l)
-        patterns_by_id.append(target_pattern[0])
-
-        available_buttons = capture_all(r"([0-9,]+)", l)
-        buttons = []
-        for b in available_buttons[:-1]:
-            buttons.append([int(bb) for bb in b.split(',')])
-        buttons_by_id.append(buttons)
-
-    return patterns_by_id, buttons_by_id
 
 
 def part2(lines):

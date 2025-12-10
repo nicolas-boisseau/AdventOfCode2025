@@ -80,15 +80,26 @@ def part2(lines):
 
         possible_intersections = [(xx, yy) for (xx, yy) in allpoints if yy == py]
         intersection = 0
-        while px >= min([x for (x, y) in possible_intersections]) - 1:
-            last_is_intersection = (px, py) in possible_intersections
-            px, py = px - 1, py
-            if not last_is_intersection and (px, py) in possible_intersections:
+        min_x = min([x for (x, y) in possible_intersections])
+        # sort by x descending
+        possible_intersections = sorted(possible_intersections, key=lambda item: item[0], reverse=False)
+        last_is_intersection = (px, py) in possible_intersections
+        empty_in_a_row = 0
+
+        while px >= min_x - 1:
+            if empty_in_a_row > 2 and (px, py) not in possible_intersections and len(possible_intersections) > 0:
+                next_intersection = possible_intersections[0]
+                px, py = next_intersection
+                possible_intersections = possible_intersections[1:]
+            else:
+                px, py = px - 1, py
+            current_is_intersection = (px, py) in possible_intersections
+            empty_in_a_row += 1 if current_is_intersection else 0
+            if not last_is_intersection and current_is_intersection:
                 intersection += 1
+                empty_in_a_row = 0
+            last_is_intersection = current_is_intersection
         return intersection % 2 == 1
-
-
-
 
     positions = []
     for l in lines:

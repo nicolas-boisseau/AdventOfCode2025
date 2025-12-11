@@ -52,6 +52,37 @@ class Graph:
                     paths.append(p)
         return paths
 
+    def find_all_paths2(self, start, target):
+        """Trouve tous les chemins de start à target en utilisant une approche itérative (DFS avec pile et set pour accélérer les recherches)."""
+        stack = [(start, [start], {start})]
+        paths = []
+        while stack:
+            node, path, visited = stack.pop()
+            if node == target:
+                paths.append(path)
+            elif node in self.adjacency:
+                for neighbor, _ in self.adjacency[node]:
+                    if neighbor not in visited:
+                        stack.append((neighbor, path + [neighbor], visited | {neighbor}))
+        return paths
+
+    def count_all_paths(self, start, target):
+        """Compte le nombre de chemins de start à target en utilisant une approche itérative (DFS)."""
+        stack = [(start, {start})]
+        count = 0
+        while stack:
+            node, visited = stack.pop()
+            if node == target:
+                count += 1
+            elif node in self.adjacency:
+                for neighbor, _ in self.adjacency[node]:
+                    if neighbor not in visited:
+                        stack.append((neighbor, visited | {neighbor}))
+        return count
+
+
+
+
 
 # Example usage
 if __name__ == "__main__":

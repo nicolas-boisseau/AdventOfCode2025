@@ -33,15 +33,33 @@ def part1(lines):
 
 def part2(lines):
     start = str.index(lines[0], 'S')
-    _, splits = part1_ext(lines)
-    y = 0
-    timelines = 1
-    while y < len(lines):
-        if y in splits:
-            timelines += splits[y] * 2
-        y += 1
+    timelines = defaultdict(int)
+    timelines[start] = 1
 
-    return timelines
+    def print_timelines(timelines, y):
+        for x in range(0, len(lines[y])):
+            if x in timelines:
+                print(timelines[x], end="")
+            else:
+                print(".", end="")
+        print()
+
+    for y in range(len(lines)-1):
+        print_timelines(timelines, y)
+        x_positions = timelines.keys()
+        new_timelines = defaultdict(int)
+        for x in x_positions:
+            count = timelines[x]
+            if lines[y+1][x] == '.':
+                new_timelines[x] += count
+            elif lines[y+1][x] == '^':
+                new_timelines[x - 1] += count
+                new_timelines[x + 1] += count
+        timelines = new_timelines
+
+    return sum([timelines[k] for k in timelines])
+
+
 
 
 if __name__ == '__main__':

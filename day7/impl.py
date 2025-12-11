@@ -5,12 +5,11 @@ from common.common import download_input_if_not_exists, post_answer, capture, ca
 
 download_input_if_not_exists(2025)
 
-def part1_with_splits(lines):
+def part1_ext(lines):
     start = str.index(lines[0], 'S')
     beams = [(start, 0)]  # (x, y)
-    splits = set()
+    splits = defaultdict(int)
     already_dones = set()
-    nb_p2 = 1
     while len(beams) > 0:
         b = beams.pop(0)
         if b in already_dones:
@@ -22,37 +21,27 @@ def part1_with_splits(lines):
         if lines[new_b_pos[1]][new_b_pos[0]] == '.':
             beams.append(new_b_pos)
         elif lines[new_b_pos[1]][new_b_pos[0]] == '^':
-            beams.append((new_b_pos[0] - 1, new_b_pos[1]))
-            beams.append((new_b_pos[0] + 1, new_b_pos[1]))
-            nb_p2+=2
-            splits.add(f"{new_b_pos[0]},{new_b_pos[1]}")
-
-    print(nb_p2)
-    return len(splits), splits
+            if not (new_b_pos[0] - 1, new_b_pos[1]) in beams:
+                beams.append((new_b_pos[0] - 1, new_b_pos[1]))
+            if not (new_b_pos[0] + 1, new_b_pos[1]) in beams:
+                beams.append((new_b_pos[0] + 1, new_b_pos[1]))
+            splits[new_b_pos[1]] += 1
+    return sum([splits[k] for k in splits]), splits
 
 def part1(lines):
-    res, splits = part1_with_splits(lines)
-    return res
+    return part1_ext(lines)[0]
 
 def part2(lines):
-    _, splits = part1_with_splits(lines)
-
-    cur_nb_beams = 1
-    total = 1
     start = str.index(lines[0], 'S')
-    beams = defaultdict(list)
-    beams[0] = [start]
-    for y in range(len(lines)):
-        nb_splits_this_line = 0
-        for x in range(len(lines[y])):
-            if f"{x},{y}" in splits and x in beams[y]:
-                nb_splits_this_line += 1
-                beams[y+1].append(x-1)
-                beams[y+1].append(x+1)
+    _, splits = part1_ext(lines)
+    y = 0
+    timelines = 1
+    while y < len(lines):
+        if y in splits:
+            timelines += splits[y] * 2
+        y += 1
 
-        total += len(beams[y+1])
-
-    return total
+    return timelines
 
 
 if __name__ == '__main__':

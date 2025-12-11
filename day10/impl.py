@@ -69,6 +69,15 @@ def part1(lines):
 
 
 def part2(lines):
+    _, buttons_by_id, joltages_by_id = read_patterns_and_buttons(lines)
+
+    for i in range(len(buttons_by_id)):
+        buttons = buttons_by_id[i]
+        joltages = joltages_by_id[i]
+
+
+
+
     return 4
 
 

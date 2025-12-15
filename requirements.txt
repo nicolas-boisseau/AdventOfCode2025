@@ -4,3 +4,4 @@ bs4
 sortedcontainers
 pillow
 numpy
+shapely

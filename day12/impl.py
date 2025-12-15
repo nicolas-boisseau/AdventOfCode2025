@@ -6,7 +6,9 @@ download_input_if_not_exists(2025)
 
 def extract_presents_and_trees(lines):
     presents = {}
+    presents_sizes = {}
     trees = {}
+    t_id = 0
     cur_id = -1
     cur_pattern = []
     for l in lines:
@@ -15,19 +17,22 @@ def extract_presents_and_trees(lines):
             splitted2 = splitted[0].split("x")
             tree_size = (int(splitted2[0]), int(splitted2[1]))
             tree_requirements = [int(c) for c in splitted[1].split(" ")]
-            trees[tree_size] = tree_requirements
+            trees[t_id] = (tree_size, tree_requirements)
+            t_id += 1
         elif ':' in l:
             cur_id = int(l.split(":")[0])
         elif l != "":
             cur_pattern.append(l)
         else:
             presents[cur_id] = cur_pattern
+            presents_sizes[cur_id] = sum([1 if c == "#" else 0 for c in "".join(cur_pattern)])
             cur_pattern = []
             cur_id = -1
 
     # for p in presents:
     #     pattern = presents[p]
-    #     print(f"Present {p}:")
+    #     size = presents_sizes[p]
+    #     print(f"Present {p} (size = {size}:")
     #     for line in pattern:
     #         print(line)
     #     print("")
@@ -35,7 +40,7 @@ def extract_presents_and_trees(lines):
     # for t in trees:
     #     print(f"Tree size {t}: requirements {trees[t]}")
 
-    return presents, trees
+    return presents, presents_sizes, trees
 
 def print_tree_grid(grid):
     for row in grid:
@@ -43,60 +48,22 @@ def print_tree_grid(grid):
     print()
 
 def part1(lines):
-    presents, trees = extract_presents_and_trees(lines)
+    presents, presents_sizes, trees = extract_presents_and_trees(lines)
 
-    for t in trees:
-        grid = [["." for _ in range(t[0])] for _ in range(t[1])]
-        print_tree_grid(grid)
-
-        requirements = trees[t]
-        print(f"Tree size {t} requires {requirements} presents")
+    res = 0
+    for i in range(len(trees)):
+        t = trees[i]
+        tree_size = t[0][0] * t[0][1]
+        requirements = t[1]
+        #print(f"Tree size {t} requires {requirements} presents")
+        req_size = 0
         for i in range(len(requirements)):
-            number_of_occurrences = requirements[i]
-            pattern = presents[i]
+            req_size += requirements[i] * presents_sizes[i]
 
-            for j in range(number_of_occurrences):
+        if tree_size >= req_size:
+            res += 1
 
-                print(f"Placing {number_of_occurrences} present {i} with pattern:")
-                for line in pattern:
-                    print(line)
-                print()
-
-                # check if pattern can fit in the grid
-                pattern_height = len(pattern)
-                pattern_width = len(pattern[0])
-                placed = False
-                for y in range(t[1] - pattern_height + 1):
-                    for x in range(t[0] - pattern_width + 1):
-                        can_place = True
-                        for py in range(pattern_height):
-                            for px in range(pattern_width):
-                                if pattern[py][px] == "#" and grid[y + py][x + px] == "#":
-                                    can_place = False
-                                    break
-                            if not can_place:
-                                break
-                        if can_place:
-                            # place the pattern
-                            for py in range(pattern_height):
-                                for px in range(pattern_width):
-                                    if pattern[py][px] == "#":
-                                        grid[y + py][x + px] = "#"
-                            placed = True
-                            print(f"Placed present {i} at position ({x}, {y})")
-                            print_tree_grid(grid)
-                            break
-                    if placed:
-                        break
-                if not placed:
-                    print(f"Could not place present {i} on the tree of size {t}")
-
-
-
-
-
-
-    return 3
+    return res
 
 
 def part2(lines):

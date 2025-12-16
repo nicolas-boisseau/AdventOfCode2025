@@ -1,5 +1,5 @@
 import os.path
-
+import itertools
 from common.common import download_input_if_not_exists, post_answer, capture, capture_all, read_input_lines
 from day10.Graph import Graph
 
@@ -65,20 +65,40 @@ def part1(lines):
 
     return res
 
-
-
-
 def part2(lines):
     _, buttons_by_id, joltages_by_id = read_patterns_and_buttons(lines)
 
-    for i in range(len(buttons_by_id)):
-        buttons = buttons_by_id[i]
-        joltages = joltages_by_id[i]
+    res = 0
+    for i in range(len(joltages_by_id)):
+        # convertir les boutons en matrice (ex: bouton 0 affecte les joltages 0,2,3 => [1,0,1,1,0,...])
+        buttons = []
+        for b in buttons_by_id[i]:
+            current = [0] * len(joltages_by_id[i])
+            for j in b:
+                current[j] = 1
+            buttons.append(current)
 
+        target = joltages_by_id[i]  # objectif à atteindre
 
+        min_presses = None
 
+        best = 0
+        # On limite à 0..5 pressions par bouton (à ajuster)
+        for presses in itertools.product(range(6), repeat=len(buttons)):
+            result = [0] * len(target)
+            for b, count in enumerate(presses):
+                for i in range(len(target)):
+                    result[i] += buttons[b][i] * count
+            if result == target:
+                total = sum(presses)
+                if min_presses is None or total < min_presses:
+                    min_presses = total
+                    best = presses
 
-    return 4
+        print(f"Solution: {best}, nombre total de pressions : {min_presses}")
+        res += min_presses
+
+    return res
 
 
 if __name__ == '__main__':

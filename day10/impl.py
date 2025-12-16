@@ -1,5 +1,5 @@
-import os.path
-import itertools
+import pulp
+
 from common.common import download_input_if_not_exists, post_answer, capture, capture_all, read_input_lines
 from day10.Graph import Graph
 
@@ -65,6 +65,22 @@ def part1(lines):
 
     return res
 
+# Euhhh merci Copilot pour l'ILP ! :D
+def solve_ilp(buttons, target):
+    rows = len(target)
+    cols = len(buttons)
+    prob = pulp.LpProblem("ButtonPresses", pulp.LpMinimize)
+
+    x = [pulp.LpVariable(f"x_{j}", lowBound=0, cat="Integer") for j in range(cols)]
+    for i in range(rows):
+        prob += pulp.lpSum(buttons[j][i] * x[j] for j in range(cols)) == target[i]
+
+    prob += pulp.lpSum(x)
+
+    prob.solve()
+    return int(pulp.value(prob.objective)), [int(var.value()) for var in x]
+
+
 def part2(lines):
     _, buttons_by_id, joltages_by_id = read_patterns_and_buttons(lines)
 
@@ -80,22 +96,27 @@ def part2(lines):
 
         target = joltages_by_id[i]  # objectif à atteindre
 
-        min_presses = None
+        # astar = CustomAStar(buttons, use_adminissible_heuristic=i, part=2)
+        # path = astar.astar([0] * len(target), target)
 
-        best = 0
-        # On limite à 0..5 pressions par bouton (à ajuster)
-        for presses in itertools.product(range(6), repeat=len(buttons)):
-            result = [0] * len(target)
-            for b, count in enumerate(presses):
-                for i in range(len(target)):
-                    result[i] += buttons[b][i] * count
-            if result == target:
-                total = sum(presses)
-                if min_presses is None or total < min_presses:
-                    min_presses = total
-                    best = presses
+        #min_presses = None
+        #
+        # best = 0
+        # # On limite à 0..5 pressions par bouton (à ajuster)
+        # for presses in itertools.product(range(6), repeat=len(buttons)):
+        #     result = [0] * len(target)
+        #     for b, count in enumerate(presses):
+        #         for i in range(len(target)):
+        #             result[i] += buttons[b][i] * count
+        #     if result == target:
+        #         total = sum(presses)
+        #         if min_presses is None or total < min_presses:
+        #             min_presses = total
+        #             best = presses
 
-        print(f"Solution: {best}, nombre total de pressions : {min_presses}")
+        min_presses, _ = solve_ilp(buttons, target)
+
+        print(f"Solution: {i}: nombre total de pressions : {min_presses}")
         res += min_presses
 
     return res

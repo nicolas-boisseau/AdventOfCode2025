@@ -5,3 +5,4 @@ sortedcontainers
 pillow
 numpy
 shapely
+pulp

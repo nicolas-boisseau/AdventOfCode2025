@@ -24,7 +24,7 @@ def extract_and_build_directed_graph(lines) -> Graph:
 def part1(lines):
     g = extract_and_build_directed_graph(lines)
 
-    paths = g.find_all_paths2("you", "out")
+    paths = g.find_all_paths("you", "out")
 
     return len(paths)
 

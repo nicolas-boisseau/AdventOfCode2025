@@ -31,26 +31,7 @@ def part1(lines):
 def part2(lines):
     g = extract_and_build_directed_graph(lines)
 
-    paths_svr_dac = g.count_all_paths("svr", "dac")
-    print(f"Found {len(paths_svr_dac)} paths from svr to dac")
-    #
-    # paths_svr_fft = g.find_all_paths2("svr", "fft")
-    # print(f"Found {len(paths_svr_fft)} paths from svr to fft")
-    #
-    # paths_dac_fft = g.find_all_paths2("dac", "fft")
-    # print(f"Found {len(paths_dac_fft)} paths from dac to fft")
-    #
-    # paths_fft_dac = g.find_all_paths2("fft", "dac")
-    # print(f"Found {len(paths_fft_dac)} paths from fft to dac")
-    #
-    # paths_fft_out = g.find_all_paths2("fft", "out")
-    # print(f"Found {len(paths_fft_out)} paths from fft to out")
-    #
-    # paths_dac_out = g.find_all_paths2("dac", "out")
-    # print(f"Found {len(paths_dac_out)} paths from dac to out")
-
-
-    return -1
+    return g.count_all_paths("svr", "out")
 
 
 if __name__ == '__main__':

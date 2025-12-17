@@ -1,4 +1,6 @@
 import heapq
+from functools import lru_cache
+
 
 class Graph:
     def __init__(self):
@@ -52,35 +54,29 @@ class Graph:
                     paths.append(p)
         return paths
 
-    def find_all_paths2(self, start, target):
-        """Trouve tous les chemins de start à target en utilisant une approche itérative (DFS avec pile et set pour accélérer les recherches)."""
-        stack = [(start, [start], {start})]
-        paths = []
-        while stack:
-            node, path, visited = stack.pop()
-            if node == target:
-                paths.append(path)
-            elif node in self.adjacency:
-                for neighbor, _ in self.adjacency[node]:
-                    if neighbor not in visited:
-                        stack.append((neighbor, path + [neighbor], visited | {neighbor}))
-        return paths
+    @lru_cache(maxsize=None)
+    def count_all_paths(self, start, target, dac_fft_checked=(False, False)):
+        """Find all paths from start to target using DFS."""
+        if start == target:
+            if dac_fft_checked == (True, True):
+                return 1
+            else:
+                return 0
 
-    def count_all_paths(self, start, target):
-        """Compte le nombre de chemins de start à target en utilisant une approche itérative (DFS)."""
-        stack = [(start, {start})]
+        if start == "dac" and not dac_fft_checked[0]:
+            dac_fft_checked = (True, dac_fft_checked[1])
+        if start == "fft" and not dac_fft_checked[1]:
+            dac_fft_checked = (dac_fft_checked[0], True)
+
+        if start not in self.adjacency:
+            return 0
+
         count = 0
-        while stack:
-            node, visited = stack.pop()
-            if node == target:
-                count += 1
-            elif node in self.adjacency:
-                for neighbor, _ in self.adjacency[node]:
-                    if neighbor not in visited:
-                        stack.append((neighbor, visited | {neighbor}))
+        for neighbor, _ in self.adjacency[start]:
+            subCount = self.count_all_paths(neighbor, target, dac_fft_checked)
+            count += subCount
+
         return count
-
-
 
 
 
